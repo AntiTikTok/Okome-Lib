@@ -1,7 +1,9 @@
+from requests.cookies import RequestsCookieJar
 from okome.auth import Account
 from okome import util
 import urllib.parse
 import requests
+import json
 import typing
 import re
 
@@ -118,21 +120,45 @@ class Client():
             return None
         return id.group(1), password.group(1)
 
-    def get_inbox(self) -> list[Mail]:
+    def get_inbox(self, page: typing.Optional[int] | None, filter: typing.Optional[int] | None) -> list[Mail]:
         params = {
             "nopost": 1,
             "csrf_token_check": self._get_csrf_token(),
             "csrf_subtoken_check": self._get_subtoken()
         } 
+        
+        cookies = self._get_cookies()
+        
+        if page is not None:
+            params["page"] = page
+        
+        if filter is not None:
+            data = json.dumps({
+                "filter_mailaddr": filter,
+            })
+            cookies: RequestsCookieJar = self._get_cookies().copy()
+            cookies.set("cookie_filter_recv2", data)
 
         res = requests.get(f"https://m.kuku.lu/recv._ajax.php", headers=util.get_headers(), cookies=self._get_cookies()
                            , params=params)
         
         results = []
 
+        # maildatas = re.finditer("openMailData\((.*)\)",res.text)
+        # for maildata in maildatas:
+        #     data = maildata.group(1).replace(" ","").split(",")
+        #     num = data[0].strip("'")
+        #     key = data[1].strip("'")
+
+        #     re.search(f'<a id="link_maildata_{num}" .*>.*',res.text)
+
+        #     results.append(Mail(num,key))
+        #     #<span .*>(.*)<\/span>
+            
         mails = re.findall("openMailData\('(\d+)',\s*'(\w+)',\s*'([\w=;%\.]+)'", res.text)
         subjects = re.findall('<span style=\"overflow-wrap: break-word;word-break: break-all;\">(.*)<\/span>|<span class=\"font_gray\" style=\"\">(.+)</span>'
                               , res.text)
+
         for i in range(len(mails)):
             mail = mails[i]
             num = mail[0]
@@ -145,7 +171,18 @@ class Client():
             results.append(Mail(num, key, sender, to, subject))
         
         return results
+    
+    def get_mail_data(self, num: str, key: str):
+        params = {
+            "num": num,
+            "key": key,
+            "noscroll": 1
+        }
         
+        response = requests.post("https://m.kuku.lu/smphone.app.recv.view.php", headers=util.get_doc_headers()
+                                 , cookies=self._get_cookies(), params=params)
+        return response.text
+    
     def _get_cookies(self):
         return self.account.storage
     
