@@ -7,8 +7,7 @@ m.kuku.lu ラッパー無料完全
 方法 1
 
 ```python
-from okome import auth
-from okome import Client
+from okome import auth, Client
 
 account = auth.create_account()
 client = Client(account)
@@ -20,8 +19,7 @@ print("Mail: " + mail)
 方法 2
 
 ```python
-from okome import Account
-from okome import Client
+from okome import Account, Client
 
 account = Account("cookie_csrf_token", "cookie_session_hash")
 client = Client(account)

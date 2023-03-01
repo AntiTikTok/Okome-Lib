@@ -1,6 +1,6 @@
 from requests.cookies import RequestsCookieJar
-import requests
 from okome import util
+import requests
 import re
 
 class Account:
