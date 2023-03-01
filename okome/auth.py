@@ -14,7 +14,7 @@ class Account:
         self.storage.set("cookie_sessionhash", session_hash, domain="m.kuku.lu", path="/")
 
     def set_subtoken(self, subtoken: str):
-        self.subtoken - subtoken
+        self.subtoken = subtoken
 
 def create_account() -> Account:
     res = requests.get("https://m.kuku.lu/", headers=util.get_doc_headers())
@@ -23,13 +23,13 @@ def create_account() -> Account:
         
     account = Account(csrf_token, session_hash)
     subtoken = get_subtoken(account)
-    account.set_sub_token(subtoken)
+    account.set_subtoken(subtoken)
     
     return account 
 
-def get_subtoken(self, account: Account) -> str:
+def get_subtoken(account: Account) -> str:
     res = requests.get("https://m.kuku.lu/", headers=util.get_doc_headers(), cookies=account.storage)
-    id = re.search(res.text, "csrf_subtoken_check=(\w+)")
+    id = re.search("csrf_subtoken_check=(\w+)", res.text)
     if id is None:
         return None
-    return id
+    return id.group(1)

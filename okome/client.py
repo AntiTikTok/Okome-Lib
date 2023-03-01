@@ -73,7 +73,7 @@ class Client():
         else:
             return (False, None)
     
-    def get_address_list(self) -> typing.Tuple[bool, str]:
+    def get_address_list(self) -> list[Mail]:
         params = {
             "nopost": 1
         }
@@ -82,7 +82,7 @@ class Client():
                                 , cookies=self._get_cookies())
         
         results = []
-        founds = re.findall(response.text, "<span id=\"area_mailaddr_(\w+)\">([\w@\.]+)")
+        founds = re.findall("<span id=\"area_mailaddr_(\w+)\">([\w@\.]+)", response.text)
         for found in founds:
             id = found[0]
             address = found[1]
@@ -90,10 +90,28 @@ class Client():
 
         return results
 
-    def get_account_info(self) -> list[typing.Tuple(str, str)]:
-        res = requests.get("https://m.kuku.lu/",headers=util.get_headers(),cookies=self._get_cookies())
-        pass
+    def delete_address(self, id: str):
+        params = {
+            "action": "delAddrList",
+            "nopost": 1,
+            "num_list": id + ","
+        }
         
+        requests.get("https://m.kuku.lu/index._addrlist.php", headers=util.get_headers(), params=params
+                                , cookies=self._get_cookies())
+
+
+    def get_credentials(self) -> typing.Tuple[str, str]:
+        res = requests.get("https://m.kuku.lu/",headers=util.get_headers(),cookies=self._get_cookies())
+        id = re.search('<div id="area_numberview" style="white-space:wrap;word-break:break-all;">(\w*)<\/div>', res.text)
+        #id = result.group(1)
+        password = re.search('<span id="area_passwordview_copy">(\w*)<\/span>',res.text)
+        #password = result.group(1)
+        
+        if (id is None) or (password is None):
+            return None
+        return id.group(1), password.group(1)
+
     def _get_cookies(self):
         return self.account.storage
     
