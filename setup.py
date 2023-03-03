@@ -5,5 +5,5 @@ setup(
     version="1.0",
     install_requires=["requests"],  
     description="m.kuku.lu wrapper",
-    long_description=open("README.md").read(),
+    long_description=open("README.md").read().replace("\r", ""),
 )
