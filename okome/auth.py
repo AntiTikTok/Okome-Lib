@@ -17,6 +17,11 @@ class Account:
         self.subtoken = subtoken
 
 def create_account() -> Account:
+    """Create an account. We recommend not to use this method a lot times.
+
+    Returns:
+        Account: Account
+    """
     res = requests.get("https://m.kuku.lu/", headers=util.get_doc_headers())
     csrf_token = res.cookies.get("cookie_csrf_token") 
     session_hash = res.cookies.get("cookie_sessionhash")
