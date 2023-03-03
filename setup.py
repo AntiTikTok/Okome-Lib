@@ -5,6 +5,6 @@ setup(
     version="1.1.2",
     install_requires=["requests"],  
     description="m.kuku.lu wrapper",
-    long_description=open("README.md", encoding="utf-8").read(),
+    long_description=open("README.txt").read(),
     url="https://github.com/AntiTikTok/Okome-Lib",
 )
