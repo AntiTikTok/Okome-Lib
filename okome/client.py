@@ -119,8 +119,47 @@ class Client():
         if (id is None) or (password is None):
             return None
         return id.group(1), password.group(1)
+    
+    def get_inbox(self, page: typing.Optional[int] | None, filter: typing.Optional[int] | None) -> list[Mail]:
+        params = {
+            "nopost": 1,
+            "csrf_token_check": self._get_csrf_token(),
+            "csrf_subtoken_check": self._get_subtoken()
+        } 
+        
+        cookies = self._get_cookies()
+        
+        if page is not None:
+            params["page"] = page
+        
+        if filter is not None:
+            data = json.dumps({
+                "filter_mailaddr": filter,
+            })
+            cookies: RequestsCookieJar = self._get_cookies().copy()
+            cookies.set("cookie_filter_recv2", data)
 
+        res = requests.get(f"https://m.kuku.lu/recv._ajax.php", headers=util.get_headers(), cookies=self._get_cookies()
+                           , params=params)
+        
+        results = []
+            
+        mails = re.findall("openMailData\('(\d+)',\s*'(\w+)',\s*'([\w=;%\.]+)'", res.text)
+        subjects = re.findall('<span style=\"overflow-wrap: break-word;word-break: break-all;\">(.*)<\/span>|<span class=\"font_gray\" style=\"\">(.+)</span>'
+                              , res.text)
 
+        for i in range(len(mails)):
+            mail = mails[i]
+            num = mail[0]
+            key = mail[1]
+            a = urllib.parse.unquote(mail[2]).split(";")
+            sender = a[0].split("=")[1]
+            to = a[2].split("=")[1]
+            subject = subjects[i][0]
+            
+            results.append(Mail(num, key, sender, to, subject))
+        
+        return results
     
     def get_mail_data(self, num: str, key: str):
         params = {
