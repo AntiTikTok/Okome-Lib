@@ -119,6 +119,13 @@ class Client():
         if (id is None) or (password is None):
             return None
         return id.group(1), password.group(1)
+
+    def get_address_id(self, target: str) -> str:
+        addresses = self.get_address_list()
+        for address in addresses:
+            if address.address.lower() == target.lower():
+                return address.id
+        return None  
     
     def get_inbox(self, page: typing.Optional[int] | None, filter: typing.Optional[int] | None) -> list[Mail]:
         params = {
@@ -139,12 +146,11 @@ class Client():
             cookies: RequestsCookieJar = self._get_cookies().copy()
             cookies.set("cookie_filter_recv2", data)
 
-        res = requests.get(f"https://m.kuku.lu/recv._ajax.php", headers=util.get_headers(), cookies=self._get_cookies()
+        res = requests.get(f"https://m.kuku.lu/recv._ajax.php", headers=util.get_headers(), cookies=cookies
                            , params=params)
         
         results = []
-            
-        mails = re.findall("openMailData\('(\d+)',\s*'(\w+)',\s*'([\w=;%\.]+)'", res.text)
+        mails = re.findall("openMailData\('(\d+)',\s*'(\w+)',\s*'([\w=%\.;\-]+)'", res.text)
         subjects = re.findall('<span style=\"overflow-wrap: break-word;word-break: break-all;\">(.*)<\/span>|<span class=\"font_gray\" style=\"\">(.+)</span>'
                               , res.text)
 
