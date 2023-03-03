@@ -178,7 +178,7 @@ class Client():
                 return address.id
         return None  
     
-    def get_inbox(self, page: typing.Optional[int] | None, filter: typing.Optional[str] | None) -> list[Mail]:
+    def get_inbox(self, page: typing.Optional[int] = None, filter: typing.Optional[str] = None) -> list[Mail]:
         """Gets the inbox mails
 
         Args:
