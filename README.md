@@ -46,6 +46,8 @@ get_credentials: ログイン情報を取得
 
 get_inbox: インボックを取得
 get_mail_data: メールのコンテントを取得
+
+send_mail: 空メールを送信
 ```
 
 # ライセンス

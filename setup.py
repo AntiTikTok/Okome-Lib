@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="okome-lib",
-    version="1.1",
+    version="1.1.1",
     install_requires=["requests"],  
     description="m.kuku.lu wrapper",
     long_description=open("README.txt").read(),
